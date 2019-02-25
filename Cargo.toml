@@ -1,0 +1,10 @@
+[package]
+name = "macos_theme_toggler"
+version = "0.1.0"
+authors = ["Jacob Clevenger <jacobrclevenger@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+chrono = "0.4"
+sun-times = "0.1.2"
+config = "0.9"
