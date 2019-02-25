@@ -6,10 +6,10 @@ Toggles Mojave's Theme based on the time of day. Feel free to contribue to the p
 Your latitude and longitude are required to determine when sunset and sunrise are. You can either configure it here, or when you run the progarm it will ask you to configrue it there if it hasn't already been configured here.
 ```toml
 #Your Latitude
-LAT=[Latitude]
+LAT=10.0
 
 #Your Longitude
-LONG=[Longitude]
+LONG=10.0
 ```
 
 # Roadmap
