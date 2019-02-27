@@ -2,14 +2,15 @@
 
 Toggles Mojave's Theme based on the time of day. Feel free to contribue to the project. This is my first real rust project, so the code quality may not be up to standards.
 
-## Configuration
-Your latitude and longitude are required to determine when sunset and sunrise are. You can either configure it here, or when you run the progarm it will ask you to configrue it there if it hasn't already been configured here.
-```toml
-#Your Latitude
-LAT=10.0
-
-#Your Longitude
-LONG=10.0
+## Running the software
+### Building
+First you must build it before you can use it. This will change in the future, but for now as long as you have cargo installed just run
+```bash
+cargo build --release
+```
+After it builds the binary will be in `macos_theme_toggler/target/macos_theme_toggler` from there you can just run the program with the following command
+```bash
+./macos_theme_toggler/target/macos_theme_toggler [latitude: float] [longitude: float]
 ```
 
 # Roadmap

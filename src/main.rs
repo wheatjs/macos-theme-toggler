@@ -1,12 +1,11 @@
 extern crate chrono;
 extern crate sun_times;
-extern crate config;
 
-use std::io;
+use std::env;
 use std::process::Command;
-use std::thread;
+use std::thread::sleep;
 
-use chrono::prelude::*;
+use chrono::TimeZone;
 use chrono::{ Utc, DateTime, Local };
 
 fn main() {
@@ -21,19 +20,16 @@ fn get_sunrise_and_sunset(lat: f64, long: f64, altitude: f64) -> (DateTime<Utc>,
 }
 
 // Sets the system to use dark mode by executing an apple script
-fn set_dark_mode() {
-    Command::new("osascript")
-            .args(&["-e", "tell app \"System Events\" to tell appearance preferences to set dark mode to true"])
-            .output()
-            .expect("");
-}
+fn set_theme(dark: bool) {
+    let arg: &str = match dark {
+        true => "tell app \"System Events\" to tell appearance preferences to set dark mode to true",
+        false => "tell app \"System Events\" to tell appearance preferences to set dark mode to false"
+    };
 
-// Sets the system to use light mode by executing an apple script
-fn set_light_mode() {
     Command::new("osascript")
-            .args(&["-e", "tell app \"System Events\" to tell appearance preferences to set dark mode to false"])
-            .output()
-            .expect("");
+        .args(&["-e", arg])
+        .output()
+        .expect("");        
 }
 
 // Runs a loop to check the sunset/sunrise time from the current time and change the theme based on the result.
@@ -48,61 +44,30 @@ fn run_process_loop(lat: f64, long: f64) {
         
         // Set the theme to light mode
         if current_time.gt(&sunrise) && current_time.lt(&sunset) {
-            set_light_mode();
+            set_theme(false);
         }
 
-        // // Set the theme to dark mode.
+        // Set the theme to dark mode.
         if current_time.gt(&sunrise) && current_time.gt(&sunset) {
-            set_dark_mode();
+            set_theme(true);
         }
 
-        times = get_sunrise_and_sunset(28.817631, -81.303352, 8.0);
-        thread::sleep(std::time::Duration::from_secs(5));
+        times = get_sunrise_and_sunset(lat, long, 8.0);
+        sleep(std::time::Duration::from_secs(60 * 10));
     }
 }
 
 fn read_configuration() -> (f64, f64) {
-    let mut location = config::Config::new();
-    location.merge(config::File::with_name("Location")).unwrap();
+    let args: Vec<String> = env::args().collect();
 
-    let lat = match location.get("lat") {
-        Ok(lat) => {
-            lat
-        },
-        Err(_) => {
-            println!("Your latitude is not set, please set it to get the proper sunrise and sunset time");
-            print!("Latitude: ");
-            let mut lat = String::new();
-
-            io::stdin()
-                .read_line(&mut lat)
-                .expect("Failed to get latitude");
-
-            let trimmed = lat.trim();
-            let lat = trimmed.parse::<f64>().expect("Expected a float");
-
-            lat
-        }
+    let lat: f64 = match &args[1].parse() {
+        Ok(num) => { *num },
+        Err(_) => { panic!("Error: First argument(lat) should be a float"); },
     };
 
-    let long = match location.get("long") {
-        Ok(long) => {
-            long
-        },
-        Err(_) => {
-            println!("Your longitude is not set, please set it to get the proper sunrise and sunset time");
-            print!("Longitude: ");
-            let mut lat = String::new();
-
-            io::stdin()
-                .read_line(&mut lat)
-                .expect("Failed to get longitude");
-
-            let trimmed = lat.trim();
-            let long = trimmed.parse::<f64>().expect("Expected a float");
-            
-            long
-        }
+    let long: f64 = match &args[2].parse() {
+        Ok(num) => { *num },
+        Err(_) => { panic!("Error: Second argument(long) should be a float"); },
     };
 
     (lat, long)
